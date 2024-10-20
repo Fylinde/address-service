@@ -10,7 +10,7 @@ logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 logger = logging.getLogger(__name__)
 
 # You can configure the base URL of the user-service here
-USER_SERVICE_URL = "http://user-service/api/users"
+USER_SERVICE_URL = "http://user-service/users"
 
 def validate_user(user_id: int):
     """
@@ -128,7 +128,7 @@ def set_primary_address(db: Session, address_id: int, user_id: int):
     """
     try:
         # Unset the current primary address
-        db.query(AddressModel).filter(AddressModel.user_id == user_id, AddressModel.is_primary == True).update({"is_primary": False})
+        db.query(AddressModel).filter(AddressModel.user_id == user_id, AddressModel.is_primary).update({"is_primary": False})
         
         # Set the new primary address
         address = db.query(AddressModel).filter(AddressModel.id == address_id, AddressModel.user_id == user_id).first()
@@ -142,3 +142,4 @@ def set_primary_address(db: Session, address_id: int, user_id: int):
     except Exception as e:
         logger.error(f"Error setting primary address {address_id} for user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+

@@ -3,13 +3,11 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.crud.address_crud import (
     create_address, get_address_by_id, 
-    get_addresses_for_user, update_address, delete_address
+    update_address, delete_address
 )
 from app.schemas.address_schemas import AddressCreate, AddressUpdate, AddressResponse
 from app.auth.auth import get_current_user
 from app.services.address_validation import validate_address_with_here_maps  # Import address validation service
-import os
-import requests
 import logging
 from typing import List
 from app.models.address import AddressModel

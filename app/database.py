@@ -22,8 +22,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 BaseModel = declarative_base()
 
-# Add event listener to log stack trace for every query
-from sqlalchemy import event
+
 
 #@event.listens_for(engine, "before_cursor_execute")
 #def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):

@@ -1,6 +1,5 @@
 # app/main.py
-from fastapi import FastAPI
-from fastapi.routing import APIRoute
+from fastapi import FastAPI, WebSocket
 from app.routes import address  # Import the new address routes
 from fastapi.middleware.cors import CORSMiddleware  # Import CORSMiddleware
 from app.consumers.user_created_consumer import start_user_consuming  # Import the consumer
@@ -13,6 +12,8 @@ from starlette.middleware.errors import ServerErrorMiddleware
 # Adjust log level globally
 logging.basicConfig(level=logging.WARNING)  # Set to WARNING to reduce log output
 logger = logging.getLogger(__name__)
+
+
 # Adjust specific loggers
 logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)  # Reduce SQLAlchemy logs
 logging.getLogger('sqlalchemy.pool').setLevel(logging.CRITICAL)    # Disable connection pool logs
@@ -26,6 +27,13 @@ app = FastAPI()
 
 app.include_router(address.router, prefix="/addresses", tags=["addresses"])
 app.add_middleware(ServerErrorMiddleware, debug=True)
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
 
 # Define the list of allowed origins explicitly
 # Configure CORS
@@ -57,7 +65,12 @@ def start_all_consumers():
 @app.on_event("startup")
 async def startup_event():
     logger.info("Starting up the Address Service...")
-    start_all_consumers()
+    
+    # Directly call the synchronous consumer start function without await
+    start_all_consumers()  
+    
     logger.info("All consumers have been started.")
     
-    
+    # Print out all routes using logger.info
+    for route in app.router.routes:
+        logger.info(f"Route path: {route.path}, Route name: {route.name}")

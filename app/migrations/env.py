@@ -20,8 +20,6 @@ fileConfig(config.config_file_name)
 # add your model's MetaData object here
 # for 'autogenerate' support
 from app.database import BaseModel  # or Base if that's what your models inherit from
-
-from app.models.user import UserModel  # Ensure 'Base' is correctly imported from your models
 from app.models.address import AddressModel
 from app.models.address_histroy import AddressHistoryModel
 

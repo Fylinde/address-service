@@ -1,69 +1,60 @@
-import pika
+import requests
 import json
 import logging
 from sqlalchemy.exc import IntegrityError
 from app.database import SessionLocal
-from app.models.user import UserModel
+from app.utils.rabbitmq import RabbitMQConnection
 
-# Configure logging
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+USER_SERVICE_API_URL = 'http://user-service/api/users/'  # Replace with actual user-service API URL
+
+def fetch_user_from_user_service(user_id):
+    """
+    Fetch user data from User-service.
+    """
+    try:
+        response = requests.get(f"{USER_SERVICE_API_URL}{user_id}")
+        response.raise_for_status()  # Raise error for bad status codes
+        return response.json()
+    except requests.RequestException as e:
+        logger.error(f"Error fetching user from User-service: {e}")
+        return None
+
 def user_callback(ch, method, properties, body):
     user_data = json.loads(body)
-
     logger.info(f"Received user_created event for user_id: {user_data['id']}")
 
     db = SessionLocal()
     try:
-        # Check if the user already exists in the address-service
-        existing_user = db.query(UserModel).filter(UserModel.id == user_data["id"]).first()
-        if existing_user:
-            logger.info(f"User with id {user_data['id']} already exists in address-service.")
-        else:
-            logger.info(f"Adding new user with id {user_data['id']} to address-service.")
-            new_user = UserModel(
-                id=user_data["id"],
-                full_name=user_data.get("full_name"),
-                email=user_data["email"],
-                phone_number=user_data.get("phone_number"),
-                hashed_password=user_data.get("hashed_password"),
-                is_active=user_data.get("is_active", True),
-                is_admin=user_data.get("is_admin", False)
-            )
-            db.add(new_user)
-            db.commit()
-            logger.info(f"User {new_user.full_name} (ID: {new_user.id}) added to address-service.")
+        # Process user data and update Address-service database
+        logger.info(f"Handling user data for user_id {user_data['id']} in Address-service")
+        # Here, you would implement logic to update AddressModel or other models as required
+        db.commit()
+        
+        # Acknowledge the message
+        ch.basic_ack(delivery_tag=method.delivery_tag)
     except IntegrityError as e:
-        logger.error(f"Integrity error occurred: {str(e)}")
+        logger.error(f"Database Integrity error: {str(e)}")
         db.rollback()
     except Exception as e:
-        logger.error(f"Exception occurred: {str(e)}")
+        logger.error(f"Error processing user data: {str(e)}")
         db.rollback()
     finally:
         db.close()
 
-
 def start_user_consuming():
-    logger.info("Connecting to RabbitMQ for user creation messages")
-    
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='rabbitmq')
-    )
-    
-    channel = connection.channel()
+    try:
+        # Initialize RabbitMQ connection to subscribe to a specific queue
+        rabbitmq = RabbitMQConnection(queue_name='user_verification_queue')
+        
+        logger.info("Starting to consume user_created events from user_verification_queue")
+        rabbitmq.consume_messages(user_callback)
 
-    # Declare the exchange that will be used to receive user events
-    channel.exchange_declare(exchange='user_events', exchange_type='fanout')
-    logger.info("Exchange 'user_events' declared")
+    except Exception as e:
+        logger.error(f"Error while setting up consumer: {e}")
 
-    # Create an exclusive queue for the address-service consumer
-    queue_name = channel.queue_declare(queue='', exclusive=True).method.queue
-    channel.queue_bind(exchange='user_events', queue=queue_name)
-    logger.info(f"Queue {queue_name} bound to exchange 'user_events'")
-
-    logger.info("Waiting for user messages. To exit press CTRL+C")
-
-    # Start consuming messages
-    channel.basic_consume(queue=queue_name, on_message_callback=user_callback, auto_ack=True)
-    channel.start_consuming()
+if __name__ == "__main__":
+    start_user_consuming()
