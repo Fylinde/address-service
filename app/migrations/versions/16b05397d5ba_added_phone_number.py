@@ -24,7 +24,7 @@ def upgrade() -> None:
                existing_type=postgresql.TIMESTAMP(),
                nullable=True,
                existing_server_default=sa.text('now()'))
-    op.add_column('addresses', sa.Column('phone_number', sa.String(), nullable=True))
+    op.add_column('addresses', sa.Column('phoneNumber', sa.String(), nullable=True))
     op.alter_column('addresses', 'user_id',
                existing_type=sa.INTEGER(),
                nullable=False)
@@ -102,7 +102,7 @@ def downgrade() -> None:
     op.alter_column('addresses', 'user_id',
                existing_type=sa.INTEGER(),
                nullable=True)
-    op.drop_column('addresses', 'phone_number')
+    op.drop_column('addresses', 'phoneNumber')
     op.alter_column('address_history', 'updated_at',
                existing_type=postgresql.TIMESTAMP(),
                nullable=False,

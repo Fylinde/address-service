@@ -13,15 +13,15 @@ class AddressModel(BaseModel):
     street_address_2 = Column(String(256), nullable=True)
     city = Column(String(256), nullable=True)
     city_area = Column(String(128), nullable=True)
-    postal_code = Column(String(20), nullable=True)
+    postalCode = Column(String(20), nullable=True)
     country = Column(String(2), nullable=False)  # Assuming ISO country code
     country_area = Column(String(128), nullable=True)
     validation_skipped = Column(Boolean, default=False)
     state = Column(String, nullable=False)
     is_primary = Column(Boolean, default=False)
-    phone_number = Column(String, nullable=True)
+    phoneNumber = Column(String, nullable=True)
     user_id = Column(Integer, nullable=False)  # Removed ForeignKey to 'users.id'
-    vendor_id = Column(Integer, nullable=True)  # Added support for multi-vendor addresses
+    seller_id = Column(Integer, nullable=True)  # Added support for multi-vendor addresses
     geolocation = Column(String, nullable=True)  # Field to store geolocation (lat,long) after validation
     address_type = Column(String, nullable=True)
 

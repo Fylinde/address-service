@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 # You can configure the base URL of the user-service here
 USER_SERVICE_URL = "http://user-service/users"
 
-def validate_user(user_id: int):
+def validate_user(user_id: str):
     """
     Validate user by making an API call to user-service.
     """
@@ -24,10 +24,10 @@ def validate_user(user_id: int):
         logger.error(f"Error validating user {user_id}: {e}")
         raise HTTPException(status_code=500, detail="Failed to validate user")
 
-def create_address(db: Session, address_data: AddressCreate, user_id: int, vendor_id: int = None):
+def create_address(db: Session, address_data: AddressCreate, user_id: str, sellerId: str = None):
     """
     Create a new address for a user.
-    Decoupled: Validates user through API, supports vendor-specific addresses.
+    Decoupled: Validates user through API, supports seller-specific addresses.
     """
     try:
         # Validate user via user-service API
@@ -38,11 +38,11 @@ def create_address(db: Session, address_data: AddressCreate, user_id: int, vendo
             street=address_data.street,
             city=address_data.city,
             state=address_data.state,
-            postal_code=address_data.postal_code,
+            postalCode=address_data.postalCode,
             country=address_data.country,
-            phone_number=address_data.phone_number,
+            phoneNumber=address_data.phoneNumber,
             user_id=user_id,
-            vendor_id=vendor_id,  # Multivendor support
+            sellerId=sellerId,  # Multivendor support
             is_primary=False  # Default value, adjust as needed
         )
         db.add(new_address)
@@ -71,7 +71,7 @@ def get_address_by_id(db: Session, address_id: int):
         logger.error(f"Error retrieving address {address_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-def get_addresses_for_user(db: Session, user_id: int):
+def get_addresses_for_user(db: Session, user_id: str):
     """
     Retrieve all addresses for a user.
     Decoupled: Validates user through API.
@@ -122,7 +122,7 @@ def delete_address(db: Session, address_id: int):
         logger.error(f"Error deleting address {address_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
-def set_primary_address(db: Session, address_id: int, user_id: int):
+def set_primary_address(db: Session, address_id: int, user_id: str):
     """
     Set an address as the primary address for a user.
     """

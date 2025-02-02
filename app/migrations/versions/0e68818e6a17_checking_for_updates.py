@@ -58,11 +58,11 @@ def upgrade() -> None:
     op.add_column(
         "addresses", sa.Column("validation_skipped", sa.Boolean(), nullable=True)
     )
-    op.add_column("addresses", sa.Column("vendor_id", sa.Integer(), nullable=True))
+    op.add_column("addresses", sa.Column("seller_id", sa.Integer(), nullable=True))
     op.add_column("addresses", sa.Column("geolocation", sa.String(), nullable=True))
     op.alter_column("addresses", "city", existing_type=sa.VARCHAR(), nullable=True)
     op.alter_column(
-        "addresses", "postal_code", existing_type=sa.VARCHAR(), nullable=True
+        "addresses", "postalCode", existing_type=sa.VARCHAR(), nullable=True
     )
     op.drop_column("addresses", "street")
     # Other column modifications as needed...
@@ -82,7 +82,7 @@ def downgrade() -> None:
             "last_name", sa.VARCHAR(length=128), autoincrement=False, nullable=True
         ),
         sa.Column(
-            "phone_number", sa.VARCHAR(length=20), autoincrement=False, nullable=True
+            "phoneNumber", sa.VARCHAR(length=20), autoincrement=False, nullable=True
         ),
         sa.Column("profile_picture", sa.VARCHAR(), autoincrement=False, nullable=True),
         sa.Column("date_of_birth", sa.VARCHAR(), autoincrement=False, nullable=True),
@@ -165,7 +165,7 @@ def downgrade() -> None:
             "middle_name", sa.VARCHAR(length=128), autoincrement=False, nullable=True
         ),
         sa.PrimaryKeyConstraint("id", name="users_pkey"),
-        sa.UniqueConstraint("phone_number", name="users_phone_number_key"),
+        sa.UniqueConstraint("phoneNumber", name="users_phoneNumber_key"),
     )
     op.create_index("ix_users_id", "users", ["id"], unique=False)
     op.create_index("ix_users_email", "users", ["email"], unique=True)

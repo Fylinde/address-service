@@ -27,7 +27,7 @@ def upgrade() -> None:
         sa.Column('hashed_password', sa.String(), nullable=False),
         sa.Column('first_name', sa.String(length=128), nullable=True),
         sa.Column('last_name', sa.String(length=128), nullable=True),
-        sa.Column('phone_number', sa.String(length=20), nullable=True),
+        sa.Column('phoneNumber', sa.String(length=20), nullable=True),
         sa.Column('profile_picture', sa.String(), nullable=True),
         sa.Column('date_of_birth', sa.String(), nullable=True),
         sa.Column('gender', sa.String(length=10), nullable=True),
@@ -44,7 +44,7 @@ def upgrade() -> None:
         sa.Column('updated_at', sa.DateTime(), nullable=False, server_default=sa.func.now(), onupdate=sa.func.now()),
         sa.Column('subscription_status', sa.String(), nullable=True),
         sa.PrimaryKeyConstraint('id'),
-        sa.UniqueConstraint('phone_number')
+        sa.UniqueConstraint('phoneNumber')
     )
     op.create_index(op.f('ix_users_email'), 'users', ['email'], unique=True)
     op.create_index(op.f('ix_users_id'), 'users', ['id'], unique=False)
@@ -55,7 +55,7 @@ def upgrade() -> None:
         sa.Column('street', sa.String(), nullable=False),
         sa.Column('city', sa.String(), nullable=False),
         sa.Column('state', sa.String(), nullable=False),
-        sa.Column('postal_code', sa.String(), nullable=False),
+        sa.Column('postalCode', sa.String(), nullable=False),
         sa.Column('country', sa.String(), nullable=False),
         sa.Column('is_primary', sa.Boolean(), nullable=True),
         sa.Column('user_id', sa.Integer(), nullable=True),

@@ -72,7 +72,7 @@ def get_address_by_id_route(
 
 @router.get("/users/{user_id}/addresses", response_model=List[AddressResponse])
 def get_user_addresses(
-    user_id: int, 
+    user_id: str, 
     db: Session = Depends(get_db), 
     current_user: dict = Depends(get_current_user)  # Updated: current_user is now a dict from user-service API
 ):

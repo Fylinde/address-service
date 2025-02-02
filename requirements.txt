@@ -16,3 +16,5 @@ requests
 python-jose
 passlib[bcrypt]
 email-validator
+watchdog 
+uvicorn
